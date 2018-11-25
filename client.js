@@ -23,11 +23,36 @@ function detectChange(x) {
 }
 
 function proceedStep(x) {
-    ++step
 
-    console.log(step)
+    if (step==2) {
+        /* TO-DO before moving to next stage */
 
-    socket.emit('step_update', step);
+        itemsForOCR = document.getElementsByClassName("resize-drag")
+
+        console.log(itemsForOCR);
+
+        for (var i = 0; i < itemsForOCR.length; i++) {
+            itemToOCR = itemsForOCR[i].style
+
+            itemToOCR = [
+                parseFloat(itemToOCR.left),
+                parseFloat(itemToOCR.left) + parseFloat(itemToOCR.width),
+                parseFloat(itemToOCR.top),
+                parseFloat(itemToOCR.top) + parseFloat(itemToOCR.height)
+            ]
+
+            itemToOCR = itemToOCR.map(function(x) { return x * docInfo.aspectRatio })
+
+            console.log(itemToOCR)
+        }
+    }
+
+    else {
+        ++step
+        console.log(step)
+        socket.emit('step_update', step);
+    }
+
 
     redraw()
 }
@@ -184,8 +209,8 @@ function getStepData(step) {
             
             React.createElement('div',{className: "row"},
             [
-                React.createElement('button',{className: "btn btn-info", onClick: ()=>detectChange()}, "Layout 1"),
-                React.createElement('button',{className: "btn btn-info", onClick: ()=>proceedStep()}, "Layout 2")
+                // React.createElement('button',{className: "btn btn-success", onClick: ()=>detectChange()}, "Update"),
+                React.createElement('button',{className: "btn btn-danger", onClick: ()=>proceedStep()}, "Next")
             ]),
     
             React.createElement('div',{className: "row", style: {marginTop: "20px"}},

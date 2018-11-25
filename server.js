@@ -191,7 +191,7 @@ io.sockets.on('connection', socket => {
 
             py.stdout.on('end', function() {
                 // console.log(dataString);
-                myClient.emit('to_client', "ITEMS_END")
+                // myClient.emit('to_client', "ITEMS_END")
             });
 
 

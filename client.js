@@ -2,7 +2,10 @@ const socket = io()
 
 var docInfo = {
     initialCorners: null,
-    viewBox: null
+    viewBox: null,
+
+    itemsFound: 0,
+    pcntPageAnalysed: 0
 };
 
 var step = 1
@@ -47,7 +50,7 @@ socket.on('to_client', function (data) {
         }
     }
 
-    if (data.substr(0, 3) == "VB:") {
+    else if (data.substr(0, 3) == "VB:") {
         docInfo.viewBox = data.trim().substr(3)
         vb_dims = docInfo.viewBox.split(',')
         console.log(vb_dims)
@@ -63,6 +66,20 @@ socket.on('to_client', function (data) {
 
         document.getElementById("star-demo").getSVGDocument().getElementById("svg-edit-demo").setAttribute("viewBox", vb_dims)
     }
+
+    else if (data.substr(0, 4) == "ITEM") {
+        itemInfo = data.trim().split('\r\n')
+        
+        itemCoords = itemInfo[1]
+        itemInfo = itemInfo[0].split('_')
+
+        docInfo.itemsFound = itemInfo[1]
+        docInfo.pcntPageAnalysed = itemInfo[3]
+
+        console.log(itemInfo)
+        console.log(itemCoords)
+    }
+    
 
     redraw();
 })
@@ -106,7 +123,9 @@ function getStepData(step) {
         return React.createElement('div',{className: "jumbotron"},
         [
             React.createElement('h2', null, "Layout Analysis"),
-            React.createElement('p', {className: "lead"}, `Analysing layout of the page. Please stand by. ${step}`),
+            React.createElement('p', {className: "lead"}, `Analysing layout of the page. Please stand by ...`),
+
+            React.createElement('p', {className: "lead"}, `${docInfo.itemsFound} items found, ${docInfo.pcntPageAnalysed}% page analysed.`),
             
             React.createElement('div',{className: "row"},
             [
@@ -116,13 +135,13 @@ function getStepData(step) {
     
             React.createElement('div',{className: "row", style: {marginTop: "20px"}},
             [
-                React.createElement('div',{className: "col-lg-6"},
-                [
-                    React.createElement('img', {src: "python_scripts/post_skew.png?" + new Date().getTime(), style: {width: "100%"}}, null)
-                ]),
+                // React.createElement('div',{className: "col-lg-6"},
+                // [
+                //     React.createElement('img', {src: "python_scripts/post_skew.png?" + new Date().getTime(), style: {width: "100%"}}, null)
+                // ]),
                 
 
-                React.createElement('div',{className: "col-lg-6"},
+                React.createElement('div',{className: "col-lg-12", id: "inner-app-panel"},
                 [
                     React.createElement('div',{className: "resize-container", style: {
                         background: "green",
@@ -137,7 +156,7 @@ function getStepData(step) {
 
                     React.createElement('div',{
                         className: "resize-drag",
-                        style: {position: "absolute", zIndex: 20, left: "auto", top: "0px"}
+                        style: {position: "absolute", zIndex: 20, left: "10px", top: "20px"}
                     }, React.createElement('a', {href: "#"}, 'x'))
                 ])
 
@@ -159,15 +178,21 @@ function redraw() {
         document.getElementById('ocrFromScratch')
     )
 
-    if (step==2) {
-        renderLayoutTool()
+    if (step==1) {
+        /* ENLARGE PANEL FOR TWO SIDE BY SIDE PANELS */
+        document.getElementById('outer-app-panel').setAttribute("style", "max-width: 1400px")
+    }
 
-        document.getElementById('div-to-resize').setAttribute("width", 
-            document.getElementById('image-for-layout').getAttribute("clientWidth")
-        )
-        document.getElementById('div-to-resize').setAttribute("height", 
-            document.getElementById('image-for-layout').getAttribute("clientHeight")
-        )
+    if (step==2) {
+        /* REDUCE PANEL FOR JUST ONE IMAGE PANEL */
+        document.getElementById('outer-app-panel').setAttribute("style", "")
+
+        /* REMOVE PADDING FOR EASIER ALIGNMENT OF LAYOUT ANALYSIS DIV ELEMENTS */
+        document.getElementById("inner-app-panel").setAttribute("style", "padding-right: 0px; padding-left: 0px;")
+
+
+
+        renderLayoutTool()
     }
 }
 

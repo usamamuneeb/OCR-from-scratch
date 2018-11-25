@@ -5,6 +5,8 @@ Implementation of OCR from scratch using Python and TensorFlow
 
 Usama Muneeb ([GitHub](https://github.com/usamamuneeb)); Yunjuan Wang ([GitHub](https://github.com/bettyttytty))
 
+University of Illinois at Chicago (UIC)
+
 # 1. Running the Server
 
 ## 1.1 Setting up the environment

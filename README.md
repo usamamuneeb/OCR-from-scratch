@@ -1,11 +1,15 @@
 # OCR-from-scratch
 Implementation of OCR from scratch using Python and TensorFlow
 
+## Authors
+
+Usama Muneeb ([GitHub](https://github.com/usamamuneeb)); Yunjuan Wang ([GitHub](https://github.com/bettyttytty))
+
 # 1. Running the Server
 
 ## 1.1 Setting up the environment
 
-### Install [Node.js](https://nodejs.org/en/).
+### 1.1.1 Install [Node.js](https://nodejs.org/en/).
 
 The application is developed on version 10 LTS. Other versions may continue to support but are untested.
 
@@ -17,7 +21,7 @@ The application is developed on version 10 LTS. Other versions may continue to s
 
 [Windows Download](https://sourceforge.net/projects/graphicsmagick/files/graphicsmagick-binaries/1.3.31/GraphicsMagick-1.3.31-Q8-win64-dll.exe/download)
 
-### Install Python
+### 1.1.2 Install Python
 
 Python 3.6.X is required. As of yet, TensorFlow works with Python 3.6.X.
 

@@ -118,16 +118,27 @@ function getStepData(step) {
             [
                 React.createElement('div',{className: "col-lg-6"},
                 [
-                    React.createElement('img', {src: "python_scripts/post_skew.png?" + new Date().getTime(), style: {width: "100%"}, id: "image-for-layout"}, null)
+                    React.createElement('img', {src: "python_scripts/post_skew.png?" + new Date().getTime(), style: {width: "100%"}}, null)
                 ]),
-
+                
 
                 React.createElement('div',{className: "col-lg-6"},
                 [
-                    React.createElement('div',{className: "resize-container", style: {backgroundColor: "green"}, id: "div-to-resize"},
+                    React.createElement('div',{className: "resize-container", style: {
+                        background: "green",
+                        position: "relative", zIndex: 10
+                    }},
                     [
-                        React.createElement('div',{className: "resize-drag"}, ".")
-                    ])
+                        React.createElement('img', {
+                            src: "python_scripts/post_skew.png?" + new Date().getTime(),
+                            style: {width: "100%"},
+                        }, null),
+                    ]),
+
+                    React.createElement('div',{
+                        className: "resize-drag",
+                        style: {position: "absolute", zIndex: 20, left: "auto", top: "0px"}
+                    }, React.createElement('a', {href: "#"}, 'x'))
                 ])
 
                 // React.createElement('div',{className: "col-lg-6"},

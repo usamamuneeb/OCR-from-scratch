@@ -3,9 +3,15 @@ const socket = io()
 var docInfo = {
     initialCorners: null,
     viewBox: null,
+    naturalDims: null,
 
     itemsFound: 0,
-    pcntPageAnalysed: 0
+    pcntPageAnalysed: 0,
+
+    items: [],
+    clientDims: null,
+
+    aspectRatio: 1
 };
 
 var step = 1
@@ -55,10 +61,11 @@ socket.on('to_client', function (data) {
         vb_dims = docInfo.viewBox.split(',')
         console.log(vb_dims)
 
-        vb_dims = [parseInt(vb_dims[0]),  parseInt(vb_dims[1])]
-        console.log(vb_dims)
+        docInfo.naturalDims = [parseInt(vb_dims[0]),  parseInt(vb_dims[1])]
+        console.log("docInfo.naturalDims")
+        console.log(docInfo.naturalDims)
 
-        vb_dims = [Math.round((800 * parseInt(vb_dims[0])) / parseInt(vb_dims[1])), 800]
+        vb_dims = [Math.round((800 * parseInt(docInfo.naturalDims[0])) / parseInt(docInfo.naturalDims[1])), 800]
         console.log(vb_dims)
 
         vb_dims = "0 0 " + vb_dims[0].toString() + " " + vb_dims[1].toString()
@@ -77,7 +84,28 @@ socket.on('to_client', function (data) {
         docInfo.pcntPageAnalysed = itemInfo[3]
 
         console.log(itemInfo)
-        console.log(itemCoords)
+
+        itemCoords = itemCoords.substr(1,itemCoords.length-2).split(', ')
+        var itemParams = {
+            starting_c: parseInt(itemCoords[0]),
+            width: parseInt(itemCoords[1]) - parseInt(itemCoords[0]),
+            starting_r: parseInt(itemCoords[2]),
+            height: parseInt(itemCoords[3]) - parseInt(itemCoords[2])
+        }
+        console.log(itemParams)
+
+        docInfo.items.push(itemParams)
+        // console.log(docInfo.items)
+
+        /* UPDATE CLIENT DIMS AFTER EVERY ITEM IS RECEIVED (to be in sync with window resizing) */
+        docInfo.clientDims = [
+            document.getElementById('inner-app-panel').clientWidth,
+            document.getElementById('inner-app-panel').clientHeight
+        ]
+
+        console.log("CLIENT DIMS: ", docInfo.clientDims)
+
+        docInfo.aspectRatio = docInfo.naturalDims[0] / docInfo.clientDims[0]
     }
     
 
@@ -120,6 +148,33 @@ function getStepData(step) {
 
 
     if (step==2) {
+
+        function getItemOverlays(itemOverlays) {
+
+            console.log("ASPECT RATIO: ", docInfo.aspectRatio)
+
+            itemOverlaysReact = [];
+
+            itemOverlays.forEach(function(overlay) {
+
+                itemOverlaysReact.push(
+
+                    React.createElement('div',{
+                        className: "resize-drag",
+                        style: {
+                            width: (overlay.width / docInfo.aspectRatio).toString() + "px",
+                            height: (overlay.height / docInfo.aspectRatio).toString() + "px",
+                            left: (overlay.starting_c / docInfo.aspectRatio).toString() + "px",
+                            top: (overlay.starting_r / docInfo.aspectRatio).toString() + "px"
+                        }
+                    }, React.createElement('a', {href: "#"}, 'x'))
+
+                )
+            });
+
+            return itemOverlaysReact
+        }
+
         return React.createElement('div',{className: "jumbotron"},
         [
             React.createElement('h2', null, "Layout Analysis"),
@@ -154,10 +209,13 @@ function getStepData(step) {
                         }, null),
                     ]),
 
-                    React.createElement('div',{
-                        className: "resize-drag",
-                        style: {position: "absolute", zIndex: 20, left: "10px", top: "20px"}
-                    }, React.createElement('a', {href: "#"}, 'x'))
+                    getItemOverlays(docInfo.items)
+                    
+
+                    // React.createElement('div',{
+                    //     className: "resize-drag",
+                    //     style: {width: "48px", height: "48px", left: "10px", top: "20px"}
+                    // }, React.createElement('a', {href: "#"}, 'x'))
                 ])
 
                 // React.createElement('div',{className: "col-lg-6"},

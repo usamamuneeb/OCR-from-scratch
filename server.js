@@ -54,7 +54,8 @@ function copyFile(source, target, cb) {
         console.log('IC:' + initialCorners);
 
 
-        gm(target).size(function (err, size) {
+        gm("python_scripts/post_skew.png").size(function (err, size) {
+            console.log("GM CALLED")
             if (!err) {
                 viewBoxDims = viewBoxDims + size.width + ',' + size.height
                 myClient.emit('to_client', viewBoxDims)
@@ -212,6 +213,10 @@ io.sockets.on('connection', socket => {
 
 
 
+        var viewBoxDims = 'VB:'
+
+
+        
         var spawn = require('child_process').spawn,
         py    = spawn('python', [
             'python_scripts/mySlantCorrector.py', '--filename', 'python_scripts/raw', '--ext', 'jpg',
@@ -237,7 +242,19 @@ io.sockets.on('connection', socket => {
             
             console.log("Sending updated values to client [post user correction]")
             myClient.emit('to_client', 'IC:' + initialCorners)
-    
+
+
+
+            gm("python_scripts/post_skew.png").size(function (err, size) {
+                console.log("GM CALLED")
+                if (!err) {
+                    viewBoxDims = viewBoxDims + size.width + ',' + size.height
+                    myClient.emit('to_client', viewBoxDims)
+                    console.log(viewBoxDims);
+                }
+            });
+
+
             console.log(dataString);
         });
 

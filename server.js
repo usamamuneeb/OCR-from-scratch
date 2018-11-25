@@ -1,7 +1,8 @@
 const fs = require('fs')
-const formidable = require('formidable');
+const formidable = require('formidable')
 const http = require('http')
 const socketio = require('socket.io')
+const gm = require('gm')
 
 
 const readFile = file => 
@@ -29,6 +30,9 @@ function copyFile(source, target, cb) {
     });
     rd.pipe(wr);
 
+    var viewBoxDims = 'VB:'
+
+
 
     var spawn = require('child_process').spawn,
     py    = spawn('python', ['python_scripts/mySlant.py', '--filename', 'python_scripts/raw', '--ext', 'jpg']),
@@ -39,6 +43,7 @@ function copyFile(source, target, cb) {
         dataString += data.toString();
     });
 
+    // console.log(viewBoxDims);
     py.stdout.on('end', function() {
         initialCorners = dataString;
         
@@ -46,8 +51,18 @@ function copyFile(source, target, cb) {
 
 
         myClient.emit('to_client', 'IC:' + initialCorners)
+        console.log('IC:' + initialCorners);
 
-        console.log(dataString);
+
+        gm(target).size(function (err, size) {
+            if (!err) {
+                viewBoxDims = viewBoxDims + size.width + ',' + size.height
+                myClient.emit('to_client', viewBoxDims)
+                console.log(viewBoxDims);
+            }
+        });
+
+
     });
 
 
@@ -104,6 +119,13 @@ const server = http.createServer(async(request, response) => {
                 var newpath = "python_scripts/raw." + file_extension
 
                 copyFile(oldpath, newpath, console.log)
+
+                // gm(newpath).size(function (err, size) {
+                //     if (!err) {
+                //         console.log('width = ' + size.width);
+                //         console.log('height = ' + size.height);
+                //     }
+                // });
             }
         });
 

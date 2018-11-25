@@ -1,7 +1,8 @@
 const socket = io()
 
 var docInfo = {
-    initialCorners: null
+    initialCorners: null,
+    viewBox: null
 };
 
 var step = 1
@@ -44,6 +45,23 @@ socket.on('to_client', function (data) {
             handle.setAttribute("x", coords[0])
             handle.setAttribute("y", coords[1])
         }
+    }
+
+    if (data.substr(0, 3) == "VB:") {
+        docInfo.viewBox = data.trim().substr(3)
+        vb_dims = docInfo.viewBox.split(',')
+        console.log(vb_dims)
+
+        vb_dims = [parseInt(vb_dims[0]),  parseInt(vb_dims[1])]
+        console.log(vb_dims)
+
+        vb_dims = [Math.round((800 * parseInt(vb_dims[0])) / parseInt(vb_dims[1])), 800]
+        console.log(vb_dims)
+
+        vb_dims = "0 0 " + vb_dims[0].toString() + " " + vb_dims[1].toString()
+        console.log(vb_dims)
+
+        document.getElementById("star-demo").getSVGDocument().getElementById("svg-edit-demo").setAttribute("viewBox", vb_dims)
     }
 
     redraw();
@@ -100,13 +118,13 @@ function getStepData(step) {
             [
                 React.createElement('div',{className: "col-lg-6"},
                 [
-                    React.createElement('img', {src: "python_scripts/post_skew.png?" + new Date().getTime(), style: {width: "100%"}}, null)
+                    React.createElement('img', {src: "python_scripts/post_skew.png?" + new Date().getTime(), style: {width: "100%"}, id: "image-for-layout"}, null)
                 ]),
 
 
                 React.createElement('div',{className: "col-lg-6"},
                 [
-                    React.createElement('div',{className: "resize-container"},
+                    React.createElement('div',{className: "resize-container", style: {backgroundColor: "green"}, id: "div-to-resize"},
                     [
                         React.createElement('div',{className: "resize-drag"}, ".")
                     ])
@@ -130,7 +148,16 @@ function redraw() {
         document.getElementById('ocrFromScratch')
     )
 
-    if (step==2) { renderLayoutTool() }
+    if (step==2) {
+        renderLayoutTool()
+
+        document.getElementById('div-to-resize').setAttribute("width", 
+            document.getElementById('image-for-layout').getAttribute("clientWidth")
+        )
+        document.getElementById('div-to-resize').setAttribute("height", 
+            document.getElementById('image-for-layout').getAttribute("clientHeight")
+        )
+    }
 }
 
 

@@ -17,6 +17,10 @@ The application is developed on version 10 LTS. Other versions may continue to s
 
 #### Install the required Node packages:
 
+Clone the Git repository, enter the directory and install packages:
+
+    git clone https://github.com/usamamuneeb/OCR-from-scratch.git
+    cd OCR-from-scratch
     npm install formidable socketio gm
     
 #### Install the GraphicsMagick DLL for the `gm` Node package.
@@ -35,9 +39,8 @@ Python 3.6.X is required. As of yet, TensorFlow works with Python 3.6.X.
 
 ## 1.2 Running the Server
 
-Clone the Git repository, enter the directory and run the server
+Make sure you are in the project directory and run:
 
-    git clone https://github.com/usamamuneeb/OCR-from-scratch.git
     cd OCR-from-scratch
     node server.js
 

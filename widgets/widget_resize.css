@@ -13,6 +13,9 @@
   width: 10px;
   height: 24px;
 
+  position: absolute;
+  z-index: 20
+
   /* font-size: 20px;
   font-family: sans-serif;
   touch-action: none;

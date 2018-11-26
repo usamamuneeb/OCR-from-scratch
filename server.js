@@ -262,6 +262,13 @@ io.sockets.on('connection', socket => {
 
     })
 
+
+    socket.on('step2_final_items', function (data) {
+
+        console.log(data)
+    })
+
+
 });
 
 

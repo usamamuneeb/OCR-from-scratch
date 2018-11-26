@@ -1,0 +1,7 @@
+python python_scripts/myCharSplit.py --filename python_scripts/post_skew --ext png --pointsArray [46,2031,0,29],[160,243,125,179],[1050,1894,128,183],[228,1824,194,409],[70,1999,425,2196],[33,1018,1496,2199],[799,1233,2202,2262]
+
+
+
+
+
+python python_scripts/myCharSplit.py --filename python_scripts/post_skew --ext png --pointsArray [33,1018,1496,2199]

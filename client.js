@@ -22,6 +22,12 @@ function detectChange(x) {
     socket.emit('step1_correction', document.getElementById("star-demo").getSVGDocument().getElementById("edit-star").getAttribute("points"));
 }
 
+function deleteItem(mySelf) {
+    parent = mySelf.target.parentNode
+    // console.log(parent)
+    parent.parentNode.removeChild(parent)
+}
+
 function proceedStep(x) {
 
     if (step==2) {
@@ -29,7 +35,9 @@ function proceedStep(x) {
 
         itemsForOCR = document.getElementsByClassName("resize-drag")
 
-        console.log(itemsForOCR);
+        // console.log(itemsForOCR);
+
+        stringForServer = ""
 
         for (var i = 0; i < itemsForOCR.length; i++) {
             itemToOCR = itemsForOCR[i].style
@@ -42,17 +50,33 @@ function proceedStep(x) {
             ]
 
             itemToOCR = itemToOCR.map(function(x) { return x * docInfo.aspectRatio })
+            itemToOCR = itemToOCR.map(function(x) { return Math.floor(x) })
 
-            console.log(itemToOCR)
+            stringForServer += '['
+            
+            itemToOCR.forEach(function(element, idx, array) {
+                stringForServer += element.toString()
+                if (idx < array.length - 1) {
+                    stringForServer += ','
+                }
+            })
+
+            stringForServer += ']'
+
+            if (i < itemsForOCR.length - 1) {
+                stringForServer += ','
+            }
         }
+
+        console.log(stringForServer)
+
+        socket.emit('step2_final_items', stringForServer);
     }
 
-    else {
-        ++step
-        console.log(step)
-        socket.emit('step_update', step);
-    }
-
+    
+    ++step
+    console.log(step)
+    socket.emit('step_update', step);
 
     redraw()
 }
@@ -192,7 +216,10 @@ function getStepData(step) {
                             left: (overlay.starting_c / docInfo.aspectRatio).toString() + "px",
                             top: (overlay.starting_r / docInfo.aspectRatio).toString() + "px"
                         }
-                    }, React.createElement('a', {href: "#"}, 'x'))
+                    }, React.createElement('a', {
+                        href: "javascript:void(0)",
+                        onClick: (mySelf) => deleteItem(mySelf)
+                    }, 'x'))
 
                 )
             });
@@ -203,15 +230,21 @@ function getStepData(step) {
         return React.createElement('div',{className: "jumbotron"},
         [
             React.createElement('h2', null, "Layout Analysis"),
-            React.createElement('p', {className: "lead"}, `Analysing layout of the page. Please stand by ...`),
+
+            /* THIS  SHOULD **DIS**APPEAR WHEN PCNT = 100 */
+            (docInfo.pcntPageAnalysed == "100") ? null : React.createElement('p', {className: "lead"}, `Analysing layout of the page. Please stand by ...`),
 
             React.createElement('p', {className: "lead"}, `${docInfo.itemsFound} items found, ${docInfo.pcntPageAnalysed}% page analysed.`),
             
-            React.createElement('div',{className: "row"},
+            /* THIS  SHOULD APPEAR WHEN PCNT = 100 */
+            (docInfo.pcntPageAnalysed == "100") ? React.createElement('p', {className: "lead"}, `You may resize or delete some items, then hit next.`) : null,
+
+            /* THIS  SHOULD APPEAR WHEN PCNT = 100 */
+            (docInfo.pcntPageAnalysed == "100") ? (React.createElement('div',{className: "row"},
             [
-                // React.createElement('button',{className: "btn btn-success", onClick: ()=>detectChange()}, "Update"),
                 React.createElement('button',{className: "btn btn-danger", onClick: ()=>proceedStep()}, "Next")
-            ]),
+            ])) : null,
+            
     
             React.createElement('div',{className: "row", style: {marginTop: "20px"}},
             [
@@ -251,6 +284,16 @@ function getStepData(step) {
         ])
 
         renderWidget_resize();
+    }
+
+    if (step==3) {
+        return React.createElement('div',{className: "jumbotron"},
+        [
+            React.createElement('h2', null, "Splitting Lines"),
+
+            /* THIS  SHOULD **DIS**APPEAR WHEN PCNT = 100 */
+            React.createElement('p', {className: "lead"}, `Hang in there, we are splitting interesting areas into characters and feeding to the neural network ...`)
+        ])
     }
 
 }

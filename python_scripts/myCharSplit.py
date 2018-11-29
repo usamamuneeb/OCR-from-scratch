@@ -286,6 +286,8 @@ for (idx, block) in enumerate(finalPoints):
 np.save(os.path.join('python_scripts', 'postSplit'), clippedCharacters)
 
 
+print("WROTE_FILE")
+
 
 # # MAKE A RECTANGLE AROUND THIS BLOCK
 # for (idx, block) in enumerate(finalPoints):

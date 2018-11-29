@@ -1,0 +1,2 @@
+model_checkpoint_path: "ascii_lenet"
+all_model_checkpoint_paths: "ascii_lenet"

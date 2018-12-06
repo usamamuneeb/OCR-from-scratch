@@ -3,6 +3,31 @@ const formidable = require('formidable')
 const http = require('http')
 const socketio = require('socket.io')
 const gm = require('gm')
+const PDFDocument = require('pdfkit');      
+
+
+
+var fonts = {
+	Roboto: {
+		normal: 'fonts/Roboto-Regular.ttf',
+		bold: 'fonts/Roboto-Medium.ttf',
+		italics: 'fonts/Roboto-Italic.ttf',
+		bolditalics: 'fonts/Roboto-MediumItalic.ttf'
+	}
+};
+
+
+
+var docInfo = {
+    initialCorners: null,
+    computedItems: null,
+
+    naturalWidth: null,
+    naturalHeight: null,
+
+    PDF_FONT_SIZE: null
+};
+
 
 
 const readFile = file => 
@@ -57,6 +82,10 @@ function copyFile(source, target, cb) {
         gm("python_scripts/post_skew.png").size(function (err, size) {
             console.log("GM CALLED")
             if (!err) {
+                docInfo.naturalWidth = size.width
+                docInfo.naturalHeight = size.height
+                docInfo.PDF_FONT_SIZE = docInfo.naturalWidth / 60
+
                 viewBoxDims = viewBoxDims + size.width + ',' + size.height
                 myClient.emit('to_client', viewBoxDims)
                 console.log(viewBoxDims);
@@ -156,10 +185,6 @@ const io = socketio(server)
 
 
 
-var docInfo = {
-    initialCorners: null,
-    computedItems: null
-};
 
 
 io.sockets.on('connection', socket => {
@@ -201,6 +226,7 @@ io.sockets.on('connection', socket => {
 
 
         }
+
         if (OCR_Step==3) {
             console.log("RUNNING python python_scripts/myCharSplit.py --filename python_scripts/post_skew --ext png --pointsArray")
 
@@ -220,6 +246,56 @@ io.sockets.on('connection', socket => {
             py.stdout.on('end', function() {
                 console.log("FINAL OUTPUT: ", dataString);
                 myClient.emit('to_client', dataString.trim())
+            });
+        }
+
+        if (OCR_Step==4) {
+            console.log("RUNNING python python_scripts/myLeNet.py")
+
+
+            /* FEED TO NEURAL NETWORK */
+
+            var spawn = require('child_process').spawn,
+                py    = spawn('python', ['python_scripts/myLeNet.py']),
+                dataString = '';
+
+            py.stdout.on('data', function(data) {
+                receivedData = data.toString()
+                // console.log(receivedData)
+                // myClient.emit('to_client', receivedData)
+                dataString += receivedData;
+            });
+
+            py.stdout.on('end', function() {
+                console.log("FINAL OUTPUT: ", dataString.trim());
+
+
+                /* WRITE THE PDF FILE!!! */
+                /* WRITE THE PDF FILE!!! */
+                /* WRITE THE PDF FILE!!! */
+                /* WRITE THE PDF FILE!!! */
+
+
+                doc = new PDFDocument(
+                    {
+                        size: [docInfo.naturalWidth, docInfo.naturalHeight],
+                        margin: 0
+                    }
+                );
+                
+                doc.pipe( fs.createWriteStream('python_scripts/ocr_output.pdf') );
+
+
+                doc.image('python_scripts/post_skew.png', 0, 0)
+
+
+                doc.fillColor('black', 0.3)
+                doc.fontSize(docInfo.PDF_FONT_SIZE)
+
+                doc.text("Lorem Ipsum", 50,10, {width: 50})
+
+                doc.end();
+                
             });
         }
     })
@@ -271,6 +347,11 @@ io.sockets.on('connection', socket => {
                 console.log("GM CALLED")
                 if (!err) {
                     viewBoxDims = viewBoxDims + size.width + ',' + size.height
+                    docInfo.naturalWidth = size.width
+                    docInfo.naturalHeight = size.height
+                    docInfo.PDF_FONT_SIZE = docInfo.naturalWidth / 60
+
+                    
                     myClient.emit('to_client', viewBoxDims)
                     console.log(viewBoxDims);
                 }
@@ -295,6 +376,64 @@ io.sockets.on('connection', socket => {
 
 
 });
+
+
+
+
+
+
+
+function pdfGenerator(ocr_text) {
+    
+    var docDefinition = {
+
+        pageSize: { width: docInfo.naturalWidth, height: docInfo.naturalHeight },
+    
+        pageMargins: [ 0, 0, 0, 0 ],
+
+        content: getPDFItems(ocr_text),
+        styles: {
+            tableStyle: {
+                fontSize: docInfo.PDF_FONT_SIZE,
+                bold: true
+            }
+        }
+    };
+
+    return docDefinition
+
+}
+
+
+function getPDFItems(ocr_text) {
+    myItems = [
+        {
+            image: 'python_scripts/post_skew.png'
+        }
+    ]
+    
+    newItem = {
+        absolutePosition: {x: 0, y: 0},
+        table: {
+            widths: [600],
+            heights: [600],
+            body: [
+                ['ABCDEFG'],
+            ]
+        }, style: 'tableStyle'
+    }
+
+    myItems.push(newItem)
+
+    return myItems
+}
+
+
+
+
+
+
+
 
 
 console.log(`Server up and running`)

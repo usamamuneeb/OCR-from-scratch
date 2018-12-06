@@ -74,6 +74,8 @@ logits = LeNet(x)
 
 saver = tf.train.Saver()
 
+print("START_LENET")
+
 with tf.Session() as sess:
     saver.restore(sess, tf.train.latest_checkpoint(os.path.join('.','python_scripts','model')))
     sess = tf.get_default_session()
@@ -109,3 +111,5 @@ with tf.Session() as sess:
 
 
         # break
+
+print("END_LENET")

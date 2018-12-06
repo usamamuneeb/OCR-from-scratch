@@ -157,7 +157,8 @@ const io = socketio(server)
 
 
 var docInfo = {
-    initialCorners: null
+    initialCorners: null,
+    computedItems: null
 };
 
 
@@ -199,6 +200,27 @@ io.sockets.on('connection', socket => {
             /* CLIENT HAS ALREADY RENDERED LAYOUT ANALYSIS SCREEN ON HIS SIDE */
 
 
+        }
+        if (OCR_Step==3) {
+            console.log("RUNNING python python_scripts/myCharSplit.py --filename python_scripts/post_skew --ext png --pointsArray")
+
+            /* START CHARACTER SPLIT IN PYTHON TOOL */
+
+            var spawn = require('child_process').spawn,
+                py    = spawn('python', ['python_scripts/myCharSplit.py', '--filename', 'python_scripts/post_skew', '--ext', 'png', '--pointsArray', docInfo.computedItems]),
+                dataString = '';
+
+            py.stdout.on('data', function(data) {
+                receivedData = data.toString()
+                // console.log(receivedData)
+                // myClient.emit('to_client', receivedData)
+                dataString += receivedData;
+            });
+
+            py.stdout.on('end', function() {
+                console.log("FINAL OUTPUT: ", dataString);
+                myClient.emit('to_client', dataString.trim())
+            });
         }
     })
 
@@ -265,7 +287,10 @@ io.sockets.on('connection', socket => {
 
     socket.on('step2_final_items', function (data) {
 
-        console.log(data)
+        docInfo.computedItems = data
+
+        console.log("docInfo.computedItems")
+        console.log(docInfo.computedItems)
     })
 
 

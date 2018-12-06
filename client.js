@@ -11,7 +11,9 @@ var docInfo = {
     items: [],
     clientDims: null,
 
-    aspectRatio: 1
+    aspectRatio: 1,
+
+    displayMessage1: "Please WAIT while corners are computed."
 };
 
 var step = 1
@@ -86,6 +88,7 @@ socket.on('to_client', function (data) {
     console.log('server responded:', data);
 
     if (data.substr(0, 3) == "IC:") {
+        docInfo.displayMessage1 = "If the corners do not look very good, you can adjust them by dragging."
         docInfo.initialCorners = data.trim().substr(3)
 
         document.getElementById("star-demo").getSVGDocument().getElementById("edit-star").setAttribute("points", docInfo.initialCorners)
@@ -156,6 +159,10 @@ socket.on('to_client', function (data) {
 
         docInfo.aspectRatio = docInfo.naturalDims[0] / docInfo.clientDims[0]
     }
+
+    else if (data.substr(0, 10) == "WROTE_FILE") {
+        proceedStep(0)
+    }
     
 
     redraw();
@@ -171,7 +178,7 @@ function getStepData(step) {
         return React.createElement('div',{className: "jumbotron"},
         [
             React.createElement('h2', null, "Straightening"),
-            React.createElement('p', {className: "lead"}, "If the corners do not look very good, you can adjust them by dragging."),
+            React.createElement('p', {className: "lead"}, docInfo.displayMessage1),
             
             React.createElement('div',{className: "row"},
             [
@@ -289,10 +296,20 @@ function getStepData(step) {
     if (step==3) {
         return React.createElement('div',{className: "jumbotron"},
         [
-            React.createElement('h2', null, "Splitting Lines"),
+            React.createElement('h2', null, "Splitting Lines and Characters"),
 
             /* THIS  SHOULD **DIS**APPEAR WHEN PCNT = 100 */
-            React.createElement('p', {className: "lead"}, `Hang in there, we are splitting interesting areas into characters and feeding to the neural network ...`)
+            React.createElement('p', {className: "lead"}, `Hang in there, we are splitting interesting areas into characters ...`)
+        ])
+    }
+
+    if (step==4) {
+        return React.createElement('div',{className: "jumbotron"},
+        [
+            React.createElement('h2', null, "Feeding the neural network"),
+
+            /* THIS  SHOULD **DIS**APPEAR WHEN PCNT = 100 */
+            React.createElement('p', {className: "lead"}, `Characters split, now feeding them to the neural network ...`)
         ])
     }
 

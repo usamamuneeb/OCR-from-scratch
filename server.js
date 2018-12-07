@@ -3,8 +3,10 @@ const formidable = require('formidable')
 const http = require('http')
 const socketio = require('socket.io')
 const gm = require('gm')
-const PDFDocument = require('pdfkit');      
+const PDFDocument = require('pdfkit')
 
+var readline = require('readline')
+var stream = require('stream')
 
 
 var fonts = {
@@ -267,7 +269,8 @@ io.sockets.on('connection', socket => {
             });
 
             py.stdout.on('end', function() {
-                console.log("FINAL OUTPUT: ", dataString.trim());
+                docInfo.OCRedText = dataString.trim()
+                console.log("FINAL OUTPUT: ", docInfo.OCRedText);
 
 
                 /* WRITE THE PDF FILE!!! */
@@ -289,13 +292,34 @@ io.sockets.on('connection', socket => {
                 doc.image('python_scripts/post_skew.png', 0, 0)
 
 
-                doc.fillColor('black', 0.3)
+                doc.fillColor('black', 0.0)
                 doc.fontSize(docInfo.PDF_FONT_SIZE)
 
-                doc.text("Lorem Ipsum", 50,10, {width: 50})
+                itemOnPDF = docInfo.computedItems.substring(1,(docInfo.computedItems).length-1).split('],[')
+
+                IDX_LEFT = 0
+                IDX_RIGHT = 1
+                IDX_TOP = 2
+                IDX_BOTTOM = 3
+
+                console.log("ITERATING OVER THE STRING BY NEWLINE")
+
+                OCRedItem = docInfo.OCRedText.split('\n')
+
+                console.log(OCRedItem)
+
+                itemOnPDF.forEach(function(element, item_idx) {
+                    console.log("for writing to PDF")
+                    element = element.split(',')
+                    console.log(element);
+
+                    doc.text(OCRedItem[item_idx], parseInt(element[IDX_LEFT]), parseInt(element[IDX_TOP]), {width: parseInt(element[IDX_RIGHT]) - parseInt(element[IDX_LEFT])})
+                });
 
                 doc.end();
-                
+
+                myClient.emit('to_client', "WROTE_FILE")
+
             });
         }
     })
@@ -379,54 +403,6 @@ io.sockets.on('connection', socket => {
 
 
 
-
-
-
-
-function pdfGenerator(ocr_text) {
-    
-    var docDefinition = {
-
-        pageSize: { width: docInfo.naturalWidth, height: docInfo.naturalHeight },
-    
-        pageMargins: [ 0, 0, 0, 0 ],
-
-        content: getPDFItems(ocr_text),
-        styles: {
-            tableStyle: {
-                fontSize: docInfo.PDF_FONT_SIZE,
-                bold: true
-            }
-        }
-    };
-
-    return docDefinition
-
-}
-
-
-function getPDFItems(ocr_text) {
-    myItems = [
-        {
-            image: 'python_scripts/post_skew.png'
-        }
-    ]
-    
-    newItem = {
-        absolutePosition: {x: 0, y: 0},
-        table: {
-            widths: [600],
-            heights: [600],
-            body: [
-                ['ABCDEFG'],
-            ]
-        }, style: 'tableStyle'
-    }
-
-    myItems.push(newItem)
-
-    return myItems
-}
 
 
 

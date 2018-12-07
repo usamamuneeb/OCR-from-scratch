@@ -275,18 +275,8 @@ function getStepData(step) {
                     ]),
 
                     getItemOverlays(docInfo.items)
-                    
-
-                    // React.createElement('div',{
-                    //     className: "resize-drag",
-                    //     style: {width: "48px", height: "48px", left: "10px", top: "20px"}
-                    // }, React.createElement('a', {href: "#"}, 'x'))
                 ])
 
-                // React.createElement('div',{className: "col-lg-6"},
-                // [
-                //     React.createElement('img', {src: "python_scripts/post_layout.png?" + new Date().getTime(), style: {width: "100%"}}, null)
-                // ])
             ]),
         ])
 
@@ -298,7 +288,6 @@ function getStepData(step) {
         [
             React.createElement('h2', null, "Splitting Lines and Characters"),
 
-            /* THIS  SHOULD **DIS**APPEAR WHEN PCNT = 100 */
             React.createElement('p', {className: "lead"}, `Hang in there, we are splitting interesting areas into characters ...`)
         ])
     }
@@ -308,8 +297,19 @@ function getStepData(step) {
         [
             React.createElement('h2', null, "Feeding the neural network"),
 
-            /* THIS  SHOULD **DIS**APPEAR WHEN PCNT = 100 */
             React.createElement('p', {className: "lead"}, `Characters split, now feeding them to the neural network ...`)
+        ])
+    }
+
+    if (step==5) {
+        return React.createElement('div',{className: "jumbotron"},
+        [
+            React.createElement('h2', null, "Voila! Download your PDF File!"),
+
+            React.createElement('div',{className: "row"},
+            [
+                React.createElement('a',{className: "btn btn-success", href: "python_scripts/ocr_output.pdf"}, "Download PDF")
+            ]),
         ])
     }
 

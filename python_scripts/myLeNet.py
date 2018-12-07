@@ -74,14 +74,14 @@ logits = LeNet(x)
 
 saver = tf.train.Saver()
 
-print("START_LENET")
+# print("START_LENET")
 
 with tf.Session() as sess:
     saver.restore(sess, tf.train.latest_checkpoint(os.path.join('.','python_scripts','model')))
     sess = tf.get_default_session()
 
     for (idx, sentence) in enumerate(sentences):
-        print("ITEM_"+str(idx))
+        # print("ITEM_"+str(idx))
 
         if (len(sentence) > 0):
             spaces = []
@@ -112,4 +112,4 @@ with tf.Session() as sess:
 
         # break
 
-print("END_LENET")
+# print("END_LENET")

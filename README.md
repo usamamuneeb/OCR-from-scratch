@@ -1,5 +1,5 @@
 # OCR-from-scratch
-Implementation of OCR from scratch using Python and TensorFlow
+Implementation of OCR (Optical Character Recognition) from scratch using Python and TensorFlow
 
 ## Authors
 
@@ -21,7 +21,7 @@ Clone the Git repository, enter the directory and install packages:
 
     git clone https://github.com/usamamuneeb/OCR-from-scratch.git
     cd OCR-from-scratch
-    npm install formidable socketio gm
+    npm install formidable socketio gm pdfkit
     
 #### Install the GraphicsMagick DLL for the `gm` Node package.
 
